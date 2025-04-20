@@ -5,6 +5,8 @@ export type LostAnimal = {
     imageUrl: string;
     gender: 'Male' | 'Female';
     distinctiveMarkings: string;
+    lat: number;
+    lng: number;
 };
 
 export const lostAnimals: LostAnimal[] = [
@@ -15,6 +17,8 @@ export const lostAnimals: LostAnimal[] = [
         gender: 'Female',
         distinctiveMarkings: 'White spot on the forehead',
         color: 'White',
+        lat: 48.8566,
+        lng: 2.3522
     },
     {
         species: 'Chat',
@@ -23,6 +27,8 @@ export const lostAnimals: LostAnimal[] = [
         gender: 'Male',
         distinctiveMarkings: 'Black spot on the back',
         color: 'Black',
+        lat: 45.7640,
+        lng: 4.8357
     },
     {
         species: 'Chien',
@@ -31,6 +37,8 @@ export const lostAnimals: LostAnimal[] = [
         gender: 'Male',
         distinctiveMarkings: 'Black spot on the back',
         color: 'Black',
+        lat: 45.7578,
+        lng: 4.8320
     },
     {
         species: 'Chat',
@@ -39,6 +47,8 @@ export const lostAnimals: LostAnimal[] = [
         gender: 'Male',
         distinctiveMarkings: 'Black spot on the back',
         color: 'Black',
+        lat: 45.7500,
+        lng: 4.8500
     },
     {
         species: 'Chat',
@@ -47,6 +57,8 @@ export const lostAnimals: LostAnimal[] = [
         gender: 'Male',
         distinctiveMarkings: 'Black spot on the back',
         color: 'Black',
+        lat: 45.7680,
+        lng: 4.8350
     },
     {
         species: 'Chat',
@@ -55,5 +67,7 @@ export const lostAnimals: LostAnimal[] = [
         gender: 'Male',
         distinctiveMarkings: 'Black spot on the back',
         color: 'Black',
+        lat: 50.6292,
+        lng: 3.0573
     }
 ];

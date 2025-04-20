@@ -1,5 +1,8 @@
+// Modal.tsx
 import React from 'react';
 import '../styles/modal.css';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
 
 type ModalProps = {
     imageUrl: string;
@@ -8,20 +11,41 @@ type ModalProps = {
     gender: string;
     color: string;
     distinctiveMarkings: string;
+    lat: number;
+    lng: number;
     closeModal: () => void;
 };
 
-const Modal: React.FC<ModalProps> = ({ imageUrl, species, location, gender, color, distinctiveMarkings, closeModal }) => {
+const Modal: React.FC<ModalProps> = ({
+                                         imageUrl,
+                                         species,
+                                         location,
+                                         gender,
+                                         color,
+                                         distinctiveMarkings,
+                                         lat,
+                                         lng,
+                                         closeModal
+                                     }) => {
     return (
         <div className="modal-overlay">
             <div className="modal-content">
                 <div className="modal-left">
-                    {/* Partie gauche vide */}
+                    <MapContainer center={[lat, lng]} zoom={13} style={{ height: '100%', width: '100%' }}>
+                        <TileLayer
+                            attribution='&copy; OpenStreetMap contributors'
+                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                        />
+                        <Marker position={[lat, lng]}>
+                            <Popup>
+                                <strong>{species}</strong><br />
+                                Vu à {location}
+                            </Popup>
+                        </Marker>
+                    </MapContainer>
                 </div>
                 <div className="modal-right">
-                    {/* Image */}
                     <img src={imageUrl} alt={species} />
-                    {/* Informations sous l'image */}
                     <div className="modal-info">
                         <h3>{species}</h3>
                         <p><strong>Lieu : </strong>{location}</p>

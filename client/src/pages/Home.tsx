@@ -85,7 +85,6 @@ const Home = () => {
                 ))}
             </div>
 
-            {/* Afficher la modal si un animal est sélectionné */}
             {selectedAnimal && (
                 <Modal
                     imageUrl={selectedAnimal.imageUrl}
@@ -94,9 +93,12 @@ const Home = () => {
                     gender={selectedAnimal.gender}
                     color={selectedAnimal.color}
                     distinctiveMarkings={selectedAnimal.distinctiveMarkings}
+                    lat={selectedAnimal.lat}
+                    lng={selectedAnimal.lng}
                     closeModal={closeModal}
                 />
             )}
+
         </div>
     );
 };
