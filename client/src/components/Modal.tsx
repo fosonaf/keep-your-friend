@@ -1,5 +1,4 @@
-// Modal.tsx
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import '../styles/modal.css';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -27,9 +26,29 @@ const Modal: React.FC<ModalProps> = ({
                                          lng,
                                          closeModal
                                      }) => {
+    const modalRef = useRef<HTMLDivElement>(null);
+
+    // Fermer avec la touche "Escape"
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [closeModal]);
+
+    // Fermer quand on clique à l'extérieur de la modal
+    const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
+        if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
+            closeModal();
+        }
+    };
+
     return (
-        <div className="modal-overlay">
-            <div className="modal-content">
+        <div className="modal-overlay" onClick={handleOverlayClick}>
+            <div className="modal-content" ref={modalRef}>
                 <div className="modal-left">
                     <MapContainer center={[lat, lng]} zoom={13} style={{ height: '100%', width: '100%' }}>
                         <TileLayer
