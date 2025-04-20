@@ -19,6 +19,8 @@ const Modal: React.FC<ModalProps> = ({
                                          imageUrl,
                                          species,
                                          location,
+                                         date,
+                                         hour,
                                          gender,
                                          color,
                                          distinctiveMarkings,
@@ -79,6 +81,7 @@ const Modal: React.FC<ModalProps> = ({
                     <div className="modal-info">
                         <h3>{species}</h3>
                         <p><strong>Lieu : </strong>{location}</p>
+                        <p><strong>Photo prise le :</strong> {date} à {hour}</p>
                         <p><strong>Sexe : </strong>{gender}</p>
                         <p><strong>Couleur : </strong>{color}</p>
                         <p><strong>Signe distinctif : </strong>{distinctiveMarkings}</p>

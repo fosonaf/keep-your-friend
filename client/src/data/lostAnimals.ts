@@ -7,6 +7,8 @@ export type LostAnimal = {
     distinctiveMarkings: string;
     lat: number;
     lng: number;
+    date: string;
+    hour: string;
 };
 
 export const lostAnimals: LostAnimal[] = [
@@ -18,7 +20,9 @@ export const lostAnimals: LostAnimal[] = [
         distinctiveMarkings: 'White spot on the forehead',
         color: 'White',
         lat: 48.8566,
-        lng: 2.3522
+        lng: 2.3522,
+        date: '20/04/2025',
+        hour: '15h51'
     },
     {
         species: 'Chat',
@@ -28,7 +32,9 @@ export const lostAnimals: LostAnimal[] = [
         distinctiveMarkings: 'Black spot on the back',
         color: 'Black',
         lat: 45.7640,
-        lng: 4.8357
+        lng: 4.8357,
+        date: '20/04/2025',
+        hour: '15h51'
     },
     {
         species: 'Chien',
@@ -38,7 +44,9 @@ export const lostAnimals: LostAnimal[] = [
         distinctiveMarkings: 'Black spot on the back',
         color: 'Black',
         lat: 45.7578,
-        lng: 4.8320
+        lng: 4.8320,
+        date: '20/04/2025',
+        hour: '15h51'
     },
     {
         species: 'Chat',
@@ -48,7 +56,9 @@ export const lostAnimals: LostAnimal[] = [
         distinctiveMarkings: 'Black spot on the back',
         color: 'Black',
         lat: 45.7500,
-        lng: 4.8500
+        lng: 4.8500,
+        date: '20/04/2025',
+        hour: '15h51'
     },
     {
         species: 'Chat',
@@ -58,7 +68,9 @@ export const lostAnimals: LostAnimal[] = [
         distinctiveMarkings: 'Black spot on the back',
         color: 'Black',
         lat: 45.7680,
-        lng: 4.8350
+        lng: 4.8350,
+        date: '20/04/2025',
+        hour: '15h51'
     },
     {
         species: 'Chat',
@@ -68,6 +80,8 @@ export const lostAnimals: LostAnimal[] = [
         distinctiveMarkings: 'Black spot on the back',
         color: 'Black',
         lat: 50.6292,
-        lng: 3.0573
+        lng: 3.0573,
+        date: '20/04/2025',
+        hour: '15h51'
     }
 ];

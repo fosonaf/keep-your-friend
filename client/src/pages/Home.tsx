@@ -90,6 +90,8 @@ const Home = () => {
                     imageUrl={selectedAnimal.imageUrl}
                     species={selectedAnimal.species}
                     location={selectedAnimal.location}
+                    date={selectedAnimal.date}
+                    hour={selectedAnimal.hour}
                     gender={selectedAnimal.gender}
                     color={selectedAnimal.color}
                     distinctiveMarkings={selectedAnimal.distinctiveMarkings}
