@@ -1,0 +1,74 @@
+/* Modal Overlay */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+/* Modal Content */
+.modal-content {
+    background-color: #262626;
+    padding: 20px;
+    border-radius: 8px;
+    width: 90%;  /* 90% de la largeur */
+    height: 90%; /* 90% de la hauteur */
+    max-width: 90vw;  /* Max largeur de 90% de la fenêtre */
+    max-height: 90vh; /* Max hauteur de 90% de la fenêtre */
+    color: #FF6F00;
+    position: relative;
+    display: flex; /* Flexbox pour la disposition des éléments */
+    flex-direction: row; /* Disposition en ligne */
+    overflow: auto; /* Pour éviter que le contenu dépasse de la modal */
+}
+
+/* Partie gauche vide */
+.modal-content .modal-left {
+    width: 50%; /* La moitié gauche de la modal */
+    height: 100%; /* Assurer que cette partie prend toute la hauteur */
+}
+
+/* Image et infos à droite */
+.modal-content .modal-right {
+    width: 50%; /* La moitié droite de la modal */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding: 20px;
+}
+
+/* Image */
+.modal-content img {
+    width: 100%; /* Prend toute la largeur disponible */
+    height: auto;
+    border-radius: 5px;
+    object-fit: cover; /* Assurer que l'image garde son ratio tout en remplissant l'espace */
+}
+
+/* Contenu des infos en dessous de l'image */
+.modal-info {
+    margin-top: 20px; /* Espace entre l'image et les informations */
+}
+
+/* Close Button */
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #FF6F00;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    padding: 10px;
+    cursor: pointer;
+}
+
+.close-btn:hover {
+    background: #E65C00;
+}

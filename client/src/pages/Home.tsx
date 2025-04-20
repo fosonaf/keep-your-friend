@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import AnimalCard from '../components/AnimalCard';
+import Modal from '../components/Modal'; // Importer la Modal
 import { lostAnimals, LostAnimal } from '../data/lostAnimals';
 
 const Home = () => {
@@ -7,6 +8,9 @@ const Home = () => {
     const [genderFilter, setGenderFilter] = useState<'Male' | 'Female' | ''>('');
     const [colorFilter, setColorFilter] = useState<string>('');
     const [locationFilter, setLocationFilter] = useState<string>('');
+
+    // Etat pour gérer l'affichage de la modal
+    const [selectedAnimal, setSelectedAnimal] = useState<LostAnimal | null>(null);
 
     // Fonction de filtrage des animaux
     const filteredAnimals = lostAnimals.filter((animal) => {
@@ -17,6 +21,16 @@ const Home = () => {
 
         return matchesSpecies && matchesGender && matchesColor && matchesLocation;
     });
+
+    // Fonction pour ouvrir la modal avec les détails de l'animal
+    const openModal = (animal: LostAnimal) => {
+        setSelectedAnimal(animal);
+    };
+
+    // Fonction pour fermer la modal
+    const closeModal = () => {
+        setSelectedAnimal(null);
+    };
 
     return (
         <div className="container">
@@ -55,6 +69,7 @@ const Home = () => {
                     onChange={(e) => setLocationFilter(e.target.value)}
                 />
             </div>
+
             <div className="animal-list">
                 {filteredAnimals.map((animal, index) => (
                     <AnimalCard
@@ -65,9 +80,23 @@ const Home = () => {
                         imageUrl={animal.imageUrl}
                         gender={animal.gender}
                         distinctiveMarkings={animal.distinctiveMarkings}
+                        onClick={() => openModal(animal)} // Passer l'animal à la fonction openModal
                     />
                 ))}
             </div>
+
+            {/* Afficher la modal si un animal est sélectionné */}
+            {selectedAnimal && (
+                <Modal
+                    imageUrl={selectedAnimal.imageUrl}
+                    species={selectedAnimal.species}
+                    location={selectedAnimal.location}
+                    gender={selectedAnimal.gender}
+                    color={selectedAnimal.color}
+                    distinctiveMarkings={selectedAnimal.distinctiveMarkings}
+                    closeModal={closeModal}
+                />
+            )}
         </div>
     );
 };

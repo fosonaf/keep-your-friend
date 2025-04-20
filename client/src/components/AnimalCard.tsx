@@ -1,13 +1,15 @@
+// src/components/AnimalCard.tsx
 import React from 'react';
-import '../styles/animalCard.css'
+import '../styles/animalCard.css';
 
 type AnimalCardProps = {
-    name: string;
+    species: string;
     location: string;
     imageUrl: string;
     gender: 'Male' | 'Female';
     distinctiveMarkings: string;
     color: string;
+    onClick: () => void; // Ajout du onClick pour gérer l'ouverture de la modal
 };
 
 const AnimalCard: React.FC<AnimalCardProps> = ({
@@ -17,9 +19,10 @@ const AnimalCard: React.FC<AnimalCardProps> = ({
                                                    gender,
                                                    distinctiveMarkings,
                                                    color,
+                                                   onClick,
                                                }) => {
     return (
-        <div className="animal-card">
+        <div className="animal-card" onClick={onClick}>
             <img src={imageUrl} alt={species} style={{ width: '100%', borderRadius: '5px' }} />
             <span className="animal-species">{species}</span>
             <p>{location}</p>
