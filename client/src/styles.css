@@ -10,7 +10,6 @@ body {
     color: #FF6F00;
     display: flex;
     justify-content: center;
-    padding: 20px;
 }
 
 .container {
@@ -76,6 +75,7 @@ textarea:focus {
 }
 
 .select-filter, .input-filter {
+    width: 20%;
     padding: 10px;
     border-radius: 5px;
     border: 1px solid #ccc;
