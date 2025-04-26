@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useLocationSuggestions } from '../hooks/useLocationSuggestions';
 
 interface FiltersProps {
@@ -11,7 +11,7 @@ interface FiltersProps {
     setColorFilter: (value: string) => void;
     setLocationFilter: (value: string) => void;
     autocompleteLocation?: boolean;
-    onLocationSelect?: (location: string) => void; // 👉 ajout ici
+    onLocationSelect?: (location: string) => void;
 }
 
 const Filters: React.FC<FiltersProps> = ({
@@ -27,13 +27,29 @@ const Filters: React.FC<FiltersProps> = ({
                                              onLocationSelect,
                                          }) => {
     const locationSuggestions = useLocationSuggestions(locationFilter);
+    const [showSuggestions, setShowSuggestions] = useState(false);
+    const inputRef = useRef<HTMLDivElement>(null);
 
     const handleSelectSuggestion = (suggestion: string) => {
         setLocationFilter(suggestion);
         if (onLocationSelect) {
-            onLocationSelect(suggestion); // 👉 on déclenche la callback
+            onLocationSelect(suggestion);
         }
+        setShowSuggestions(false); // ferme la liste après sélection
     };
+
+    // Fermer les suggestions quand on clique en dehors
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (inputRef.current && !inputRef.current.contains(event.target as Node)) {
+                setShowSuggestions(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
 
     return (
         <div className="filters">
@@ -71,15 +87,18 @@ const Filters: React.FC<FiltersProps> = ({
 
             {/* Ville */}
             {autocompleteLocation ? (
-                <div style={{ position: 'relative' }}>
+                <div ref={inputRef} style={{ position: 'relative' }}>
                     <input
                         type="text"
                         placeholder="Rechercher une ville"
                         className="input-filter"
                         value={locationFilter}
-                        onChange={(e) => setLocationFilter(e.target.value)}
+                        onChange={(e) => {
+                            setLocationFilter(e.target.value);
+                            setShowSuggestions(true); // 👉 ouvre les suggestions quand on écrit
+                        }}
                     />
-                    {locationSuggestions.length > 0 && (
+                    {showSuggestions && locationSuggestions.length > 0 && (
                         <ul style={{
                             position: 'absolute',
                             top: '100%',

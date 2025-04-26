@@ -1,9 +1,8 @@
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import Filters from '../components/Filters';
 import { useAnimalFilters } from '../hooks/useAnimalFilters';
-import { lostAnimals } from '../data/lostAnimals';
 import 'leaflet/dist/leaflet.css';
 
 delete (L.Icon.Default.prototype as any)._getIconUrl;
