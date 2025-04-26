@@ -1,25 +1,49 @@
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
-import 'leaflet/dist/leaflet.css'
-import L from 'leaflet'
-import { lostAnimals } from '../data/lostAnimals'
+import Filters from '../components/Filters';
+import {useAnimalFilters} from '../hooks/useAnimalFilters.ts';
+import { lostAnimals } from '../data/lostAnimals';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
 
-// Fix des icônes manquantes
-delete (L.Icon.Default.prototype as any)._getIconUrl
+delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
     iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
     iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
     shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png'
-})
+});
 
 function MapPage() {
+    const {
+        speciesFilter,
+        genderFilter,
+        colorFilter,
+        locationFilter,
+        setSpeciesFilter,
+        setGenderFilter,
+        setColorFilter,
+        setLocationFilter,
+        filteredAnimals,
+    } = useAnimalFilters();
+
     return (
         <div style={{ height: '80vh', width: '100%' }}>
+            <Filters
+                speciesFilter={speciesFilter}
+                genderFilter={genderFilter}
+                colorFilter={colorFilter}
+                locationFilter={locationFilter}
+                setSpeciesFilter={setSpeciesFilter}
+                setGenderFilter={setGenderFilter}
+                setColorFilter={setColorFilter}
+                setLocationFilter={setLocationFilter}
+            />
+
             <MapContainer center={[48.8566, 2.3522]} zoom={13} scrollWheelZoom={false} style={{ height: '100%', width: '100%' }}>
                 <TileLayer
                     attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>'
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
-                {lostAnimals.map((animal, index) => (
+                {filteredAnimals.map((animal, index) => (
                     <Marker key={index} position={[animal.lat, animal.lng]}>
                         <Popup>
                             <div style={{ textAlign: 'center', maxWidth: '200px' }}>
@@ -40,10 +64,9 @@ function MapPage() {
                         </Popup>
                     </Marker>
                 ))}
-
             </MapContainer>
         </div>
-    )
+    );
 }
 
-export default MapPage
+export default MapPage;
