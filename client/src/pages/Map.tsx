@@ -1,16 +1,26 @@
-import Filters from '../components/Filters';
-import {useAnimalFilters} from '../hooks/useAnimalFilters.ts';
-import { lostAnimals } from '../data/lostAnimals';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
+import { useRef, useState } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
+import Filters from '../components/Filters';
+import { useAnimalFilters } from '../hooks/useAnimalFilters';
+import { lostAnimals } from '../data/lostAnimals';
+import 'leaflet/dist/leaflet.css';
 
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
     iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
     iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-    shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png'
+    shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 });
+
+// Composant pour bouger la carte
+function MapUpdater({ position }: { position: [number, number] | null }) {
+    const map = useMap();
+    if (position) {
+        map.setView(position, 13); // Zoom 13
+    }
+    return null;
+}
 
 function MapPage() {
     const {
@@ -25,6 +35,21 @@ function MapPage() {
         filteredAnimals,
     } = useAnimalFilters();
 
+    const [selectedPosition, setSelectedPosition] = useState<[number, number] | null>(null);
+
+    const handleLocationSelect = async (location: string) => {
+        try {
+            const response = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(location)}&format=json`);
+            const data = await response.json();
+            if (data.length > 0) {
+                const { lat, lon } = data[0];
+                setSelectedPosition([parseFloat(lat), parseFloat(lon)]);
+            }
+        } catch (error) {
+            console.error('Erreur lors du géocodage :', error);
+        }
+    };
+
     return (
         <div style={{ height: '80vh', width: '100%' }}>
             <Filters
@@ -36,13 +61,23 @@ function MapPage() {
                 setGenderFilter={setGenderFilter}
                 setColorFilter={setColorFilter}
                 setLocationFilter={setLocationFilter}
+                autocompleteLocation
+                onLocationSelect={handleLocationSelect}
             />
 
-            <MapContainer center={[48.8566, 2.3522]} zoom={13} scrollWheelZoom={false} style={{ height: '100%', width: '100%' }}>
+            <MapContainer
+                center={[48.8566, 2.3522]}
+                zoom={13}
+                scrollWheelZoom={false}
+                style={{ height: '100%', width: '100%' }}
+            >
                 <TileLayer
                     attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>'
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
+
+                {selectedPosition && <MapUpdater position={selectedPosition} />}
+
                 {filteredAnimals.map((animal, index) => (
                     <Marker key={index} position={[animal.lat, animal.lng]}>
                         <Popup>

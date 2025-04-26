@@ -13,7 +13,6 @@ const Home = () => {
         setSpeciesFilter,
         setGenderFilter,
         setColorFilter,
-        setLocationFilter,
         filteredAnimals,
         selectedAnimal,
         openModal,
@@ -30,7 +29,6 @@ const Home = () => {
                 setSpeciesFilter={setSpeciesFilter}
                 setGenderFilter={setGenderFilter}
                 setColorFilter={setColorFilter}
-                setLocationFilter={setLocationFilter}
             />
 
             <div className="animal-list">

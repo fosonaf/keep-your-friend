@@ -11,9 +11,8 @@ export function useAnimalFilters() {
         const matchesSpecies = speciesFilter ? animal.species.toLowerCase().includes(speciesFilter.toLowerCase()) : true;
         const matchesGender = genderFilter ? animal.gender === genderFilter : true;
         const matchesColor = colorFilter ? animal.color.toLowerCase().includes(colorFilter.toLowerCase()) : true;
-        const matchesLocation = locationFilter ? animal.location.toLowerCase().includes(locationFilter.toLowerCase()) : true;
 
-        return matchesSpecies && matchesGender && matchesColor && matchesLocation;
+        return matchesSpecies && matchesGender && matchesColor;
     });
 
     return {

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLocationSuggestions } from '../hooks/useLocationSuggestions';
 
 interface FiltersProps {
     speciesFilter: string;
@@ -9,6 +10,8 @@ interface FiltersProps {
     setGenderFilter: (value: '' | 'Male' | 'Female') => void;
     setColorFilter: (value: string) => void;
     setLocationFilter: (value: string) => void;
+    autocompleteLocation?: boolean;
+    onLocationSelect?: (location: string) => void; // 👉 ajout ici
 }
 
 const Filters: React.FC<FiltersProps> = ({
@@ -19,10 +22,22 @@ const Filters: React.FC<FiltersProps> = ({
                                              setSpeciesFilter,
                                              setGenderFilter,
                                              setColorFilter,
-                                             setLocationFilter
+                                             setLocationFilter,
+                                             autocompleteLocation = false,
+                                             onLocationSelect,
                                          }) => {
+    const locationSuggestions = useLocationSuggestions(locationFilter);
+
+    const handleSelectSuggestion = (suggestion: string) => {
+        setLocationFilter(suggestion);
+        if (onLocationSelect) {
+            onLocationSelect(suggestion); // 👉 on déclenche la callback
+        }
+    };
+
     return (
         <div className="filters">
+            {/* Espèce */}
             <select
                 className="select-filter"
                 value={speciesFilter}
@@ -34,6 +49,7 @@ const Filters: React.FC<FiltersProps> = ({
                 <option value="Autre">Autre</option>
             </select>
 
+            {/* Sexe */}
             <select
                 className="select-filter"
                 value={genderFilter}
@@ -44,6 +60,7 @@ const Filters: React.FC<FiltersProps> = ({
                 <option value="Female">Female</option>
             </select>
 
+            {/* Couleur */}
             <input
                 type="text"
                 placeholder="Filtrer par couleur"
@@ -52,13 +69,57 @@ const Filters: React.FC<FiltersProps> = ({
                 onChange={(e) => setColorFilter(e.target.value)}
             />
 
-            <input
-                type="text"
-                placeholder="Filtrer par ville"
-                className="input-filter"
-                value={locationFilter}
-                onChange={(e) => setLocationFilter(e.target.value)}
-            />
+            {/* Ville */}
+            {autocompleteLocation ? (
+                <div style={{ position: 'relative' }}>
+                    <input
+                        type="text"
+                        placeholder="Rechercher une ville"
+                        className="input-filter"
+                        value={locationFilter}
+                        onChange={(e) => setLocationFilter(e.target.value)}
+                    />
+                    {locationSuggestions.length > 0 && (
+                        <ul style={{
+                            position: 'absolute',
+                            top: '100%',
+                            left: 0,
+                            right: 0,
+                            background: 'white',
+                            border: '1px solid #ccc',
+                            borderTop: 'none',
+                            maxHeight: '200px',
+                            overflowY: 'auto',
+                            zIndex: 1000,
+                            listStyle: 'none',
+                            margin: 0,
+                            padding: 0,
+                        }}>
+                            {locationSuggestions.map((suggestion, index) => (
+                                <li
+                                    key={index}
+                                    style={{
+                                        padding: '8px',
+                                        cursor: 'pointer',
+                                        borderBottom: '1px solid #eee',
+                                    }}
+                                    onClick={() => handleSelectSuggestion(suggestion)}
+                                >
+                                    {suggestion}
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </div>
+            ) : (
+                <input
+                    type="text"
+                    placeholder="Filtrer par ville"
+                    className="input-filter"
+                    value={locationFilter}
+                    onChange={(e) => setLocationFilter(e.target.value)}
+                />
+            )}
         </div>
     );
 };

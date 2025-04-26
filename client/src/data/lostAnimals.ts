@@ -25,7 +25,7 @@ export const lostAnimals: LostAnimal[] = [
         hour: '15h51'
     },
     {
-        species: 'Chat',
+        species: 'Chien',
         location: 'Paris',
         imageUrl: 'https://www.lesrecettesdedaniel.fr/modules/hiblog/views/img/upload/original/488818546d009ef951fa45b42f404daa.jpg',
         gender: 'Female',
