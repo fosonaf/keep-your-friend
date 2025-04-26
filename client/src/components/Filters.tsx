@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { useLocationSuggestions } from '../hooks/useLocationSuggestions';
 
 interface FiltersProps {
@@ -27,29 +27,26 @@ const Filters: React.FC<FiltersProps> = ({
                                              onLocationSelect,
                                          }) => {
     const locationSuggestions = useLocationSuggestions(locationFilter);
-    const [showSuggestions, setShowSuggestions] = useState(false);
-    const inputRef = useRef<HTMLDivElement>(null);
+    const [showSuggestions, setShowSuggestions] = useState(true);
 
     const handleSelectSuggestion = (suggestion: string) => {
         setLocationFilter(suggestion);
         if (onLocationSelect) {
             onLocationSelect(suggestion);
         }
-        setShowSuggestions(false); // ferme la liste après sélection
+        setShowSuggestions(false); // fermer suggestions après sélection
     };
 
-    // Fermer les suggestions quand on clique en dehors
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (inputRef.current && !inputRef.current.contains(event.target as Node)) {
-                setShowSuggestions(false);
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            if (locationSuggestions.length > 0) {
+                e.preventDefault(); // empêcher le submit si jamais
+                handleSelectSuggestion(locationSuggestions[0]);
             }
-        };
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, []);
+        } else if (e.key === 'Escape') {
+            setShowSuggestions(false);
+        }
+    };
 
     return (
         <div className="filters">
@@ -87,7 +84,7 @@ const Filters: React.FC<FiltersProps> = ({
 
             {/* Ville */}
             {autocompleteLocation ? (
-                <div ref={inputRef} style={{ position: 'relative' }}>
+                <div style={{ position: 'relative' }}>
                     <input
                         type="text"
                         placeholder="Rechercher une ville"
@@ -95,8 +92,11 @@ const Filters: React.FC<FiltersProps> = ({
                         value={locationFilter}
                         onChange={(e) => {
                             setLocationFilter(e.target.value);
-                            setShowSuggestions(true); // 👉 ouvre les suggestions quand on écrit
+                            setShowSuggestions(true);
                         }}
+                        onKeyDown={handleKeyDown}
+                        onBlur={() => setTimeout(() => setShowSuggestions(false), 100)} // pour laisser le temps au clic
+                        onFocus={() => setShowSuggestions(true)}
                     />
                     {showSuggestions && locationSuggestions.length > 0 && (
                         <ul style={{
