@@ -1,8 +1,7 @@
 import Filters from '../components/Filters';
 import AnimalCard from '../components/AnimalCard';
 import Modal from '../components/Modal';
-import { lostAnimals, LostAnimal } from '../data/lostAnimals';
-import {useAnimalFilters} from "../hooks/useAnimalFilters";
+import { useAnimalFilters } from "../hooks/useAnimalFilters";
 
 const Home = () => {
     const {
