@@ -49,8 +49,7 @@ const Filters: React.FC<FiltersProps> = ({
     };
 
     return (
-        <div className="filters" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-            {/* Espèce */}
+        <div className="filters">
             <div style={{ position: 'relative' }}>
                 <select
                     className="select-filter"
@@ -80,7 +79,6 @@ const Filters: React.FC<FiltersProps> = ({
                 )}
             </div>
 
-            {/* Sexe */}
             <div style={{ position: 'relative' }}>
                 <select
                     className="select-filter"
@@ -109,7 +107,6 @@ const Filters: React.FC<FiltersProps> = ({
                 )}
             </div>
 
-            {/* Couleur */}
             <div style={{ position: 'relative' }}>
                 <input
                     type="text"
@@ -136,7 +133,6 @@ const Filters: React.FC<FiltersProps> = ({
                 )}
             </div>
 
-            {/* Ville */}
             <div style={{ position: 'relative' }}>
                 {autocompleteLocation ? (
                     <>

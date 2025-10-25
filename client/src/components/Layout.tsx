@@ -5,7 +5,7 @@ function Layout({ children }: { children: ReactNode }) {
     return (
         <div style={{ display: 'flex' }}>
             <Sidebar />
-            <main style={{ flex: 1, padding: '1rem', marginLeft: '15%' }}>
+            <main className="main-container">
                 {children}
             </main>
         </div>

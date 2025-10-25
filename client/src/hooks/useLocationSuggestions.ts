@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 
-export function useLocationSuggestions(query: string) {
+export function useLocationSuggestions(query: string, enable: boolean = true) {
     const [suggestions, setSuggestions] = useState<string[]>([]);
 
     useEffect(() => {
-        if (!query) {
+        if (!query || !enable) {
             setSuggestions([]);
             return;
         }

@@ -1,0 +1,16 @@
+.kds-select {
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.kds-options {
+    width: 100%;
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    background-color: #1E1E1E;
+    color: #F5A623;
+}

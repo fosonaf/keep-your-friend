@@ -1,0 +1,19 @@
+.kds-field {
+    text-align: left;
+}
+
+.kds-input {
+    width: 100%;
+    border-radius: 0.25rem;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    color: #F5A623;
+    margin-top: 0.25rem;
+    margin-bottom: 0;
+}
+
+.input-wrapper {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}

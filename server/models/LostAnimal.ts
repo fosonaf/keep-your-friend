@@ -3,7 +3,6 @@ import mongoose from 'mongoose';
 const lostAnimalSchema = new mongoose.Schema({
     species: {
         type: String,
-        enum: ['Chat', 'Chien', 'Autre'],
         required: true
     },
     location: {
@@ -20,12 +19,11 @@ const lostAnimalSchema = new mongoose.Schema({
     },
     gender: {
         type: String,
-        enum: ['Male', 'Female'],
         required: true
     },
     distinctiveMarkings: {
         type: String,
-        required: true
+        required: false
     },
     lat: {
         type: Number,

@@ -3,7 +3,6 @@ import LostAnimal from '../models/LostAnimal';
 
 const router = express.Router();
 
-// Route pour ajouter un animal perdu
 router.post('/', async (req, res) => {
     try {
         const { species, location, color, imageUrl, gender, distinctiveMarkings, lat, lng, date, hour } = req.body;
@@ -32,7 +31,6 @@ router.post('/', async (req, res) => {
 router.get('/', async (req, res) => {
     try {
         const lostAnimals = await LostAnimal.find();
-
         res.status(200).json(lostAnimals);
     } catch (error) {
         console.error(error);

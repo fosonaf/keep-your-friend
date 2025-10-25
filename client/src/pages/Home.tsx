@@ -2,6 +2,8 @@ import Filters from '../components/Filters';
 import AnimalCard from '../components/AnimalCard';
 import Modal from '../components/Modal';
 import { useAnimalFilters } from "../hooks/useAnimalFilters";
+import {LostAnimal} from "../types/lostAnimals.ts";
+import {useState} from "react";
 
 const Home = () => {
     const {
@@ -13,10 +15,18 @@ const Home = () => {
         setGenderFilter,
         setColorFilter,
         filteredAnimals,
-        selectedAnimal,
-        openModal,
-        closeModal,
+        setLocationFilter,
     } = useAnimalFilters();
+
+    const [selectedAnimal, setSelectedAnimal] = useState<LostAnimal | undefined>(undefined);
+
+    const openModal = (animal: LostAnimal) => {
+        setSelectedAnimal(animal);
+    }
+
+    const closeModal = () => {
+        setSelectedAnimal(undefined);
+    }
 
     return (
         <div className="container">
@@ -28,6 +38,7 @@ const Home = () => {
                 setSpeciesFilter={setSpeciesFilter}
                 setGenderFilter={setGenderFilter}
                 setColorFilter={setColorFilter}
+                setLocationFilter={setLocationFilter}
             />
 
             <div className="animal-list">

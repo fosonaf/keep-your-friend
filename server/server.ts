@@ -29,8 +29,3 @@ mongoose.connect(MONGODB_URI)
 
 // Utilisation des routes pour les animaux perdus
 app.use('/lost-animals', lostAnimalsRoutes);
-
-// Route de test pour vérifier que l'API fonctionne
-app.get('/', (req, res) => {
-    res.send('Bienvenue sur Keep Your Friend API 🐾');
-});

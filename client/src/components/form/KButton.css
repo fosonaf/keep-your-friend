@@ -1,0 +1,8 @@
+.kds-button {
+
+}
+
+.kds-button-disabled, .kds-button-disabled:hover {
+    background-color: #bdc3c7;
+    cursor: not-allowed;
+}

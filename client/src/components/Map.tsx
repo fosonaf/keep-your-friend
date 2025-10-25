@@ -1,6 +1,6 @@
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
-import { LostAnimal } from '../data/lostAnimals'
+import { LostAnimal } from '../types/lostAnimals.ts'
 
 type Props = {
     animals: LostAnimal[]
