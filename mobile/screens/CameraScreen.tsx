@@ -1,11 +1,19 @@
 import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
-import { CameraView, useCameraPermissions } from 'expo-camera';
+import { CameraView, useCameraPermissions, Camera } from 'expo-camera';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../App';
 
-export default function CameraScreen({ navigation }) {
+type CameraScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Camera'>;
+
+type Props = {
+    navigation: CameraScreenNavigationProp;
+};
+
+export default function CameraScreen({ navigation }: Props) {
     const [permission, requestPermission] = useCameraPermissions();
-    const [hasPermission, setHasPermission] = useState(null);
-    const cameraRef = useRef(null);
+    const [hasPermission, setHasPermission] = useState<boolean | null>(null);
+    const cameraRef = useRef<Camera | null>(null);
 
     useEffect(() => {
         if (permission && permission.granted) {

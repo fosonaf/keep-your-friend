@@ -1,6 +1,17 @@
 import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RouteProp } from '@react-navigation/native';
+import { RootStackParamList } from '../App';
 
-export default function PreviewScreen({ route, navigation }) {
+type PreviewScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Preview'>;
+type PreviewScreenRouteProp = RouteProp<RootStackParamList, 'Preview'>;
+
+type Props = {
+    navigation: PreviewScreenNavigationProp;
+    route: PreviewScreenRouteProp;
+};
+
+export default function PreviewScreen({ route, navigation }: Props) {
     const { photoUri } = route.params;
 
     return (
@@ -17,9 +28,7 @@ export default function PreviewScreen({ route, navigation }) {
 
                 <TouchableOpacity
                     style={[styles.button, styles.primary]}
-                    onPress={() =>
-                        navigation.navigate('Validated', { photoUri })
-                    }
+                    onPress={() => navigation.navigate('Validated', { photoUri })}
                 >
                     <Text style={styles.buttonText}>✅ Valider</Text>
                 </TouchableOpacity>

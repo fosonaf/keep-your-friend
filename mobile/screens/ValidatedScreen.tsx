@@ -1,11 +1,27 @@
 import { useEffect, useState } from 'react';
 import { View, Image, StyleSheet, Text, ActivityIndicator, Dimensions } from 'react-native';
 import * as Location from 'expo-location';
+import { RouteProp } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../App';
 
-export default function ValidatedScreen({ route }) {
+type ValidatedScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Validated'>;
+type ValidatedScreenRouteProp = RouteProp<RootStackParamList, 'Validated'>;
+
+type Props = {
+    navigation: ValidatedScreenNavigationProp;
+    route: ValidatedScreenRouteProp;
+};
+
+type LocationCoords = {
+    latitude: number;
+    longitude: number;
+};
+
+export default function ValidatedScreen({ route }: Props) {
     const { photoUri } = route.params;
-    const [location, setLocation] = useState(null);
-    const [errorMsg, setErrorMsg] = useState(null);
+    const [location, setLocation] = useState<LocationCoords | null>(null);
+    const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
     const screenHeight = Dimensions.get('window').height;
     const photoHeight = screenHeight * 0.25;
