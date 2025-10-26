@@ -1,9 +1,10 @@
+import KButton from "../components/form/KButton.tsx";
 import KField from "../components/form/KField.tsx";
+import KSelect from "../components/form/KSelect.tsx";
+import KUpload from "../components/form/KUpload.tsx";
 import {useState} from "react";
 import '../styles/registerAnimal.css'
 import '../styles/form.css'
-import KSelect from "../components/form/KSelect.tsx";
-import KButton from "../components/form/KButton.tsx";
 import {LostAnimal} from "../types/lostAnimals.ts";
 import {getCurrentDate, getCurrentTime} from "../utils/utils.ts";
 
@@ -14,12 +15,14 @@ const RegisterAnimal = () => {
     const [address, setAddress] = useState<string | number[]>('');
     const [gender, setGender] = useState<string>('');
     const [distinctiveMarkings, setDistinctiveMarkings] = useState<string>('');
+    const [file, setFile] = useState<File | null>(null);
+
 
     const isAddressValid =
         Array.isArray(address) &&
         address.length === 2 &&
         address.every((item) => typeof item === 'number');
-    const enableSubmit = animal.length && color.length && isAddressValid && gender.length;
+    const enableSubmit = animal.length && color.length && isAddressValid && gender.length && !!file;
 
     async function getCityFromCoordinates(lat, lng) {
         const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&addressdetails=1`;
@@ -37,34 +40,39 @@ const RegisterAnimal = () => {
             data.address.state
     }
 
-    const saveAnimal = async() => {
-        getCityFromCoordinates(address[0], address[1])
-            .then(async (city) => {
-                const newLostAnimal: LostAnimal = {
-                    species: animal,
-                    location: city,
-                    color: color,
-                    imageUrl: 'https://www.lesrecettesdedaniel.fr/modules/hiblog/views/img/upload/original/488818546d009ef951fa45b42f404daa.jpg',
-                    gender: gender,
-                    distinctiveMarkings: distinctiveMarkings,
-                    lat: address[0],
-                    lng: address[1],
-                    date: getCurrentDate(),
-                    hour: getCurrentTime(),
-                };
+    const saveAnimal = async () => {
+        if (!file) {
+            alert('Veuillez sélectionner une image');
+            return;
+        }
 
-                const response = await fetch('http://localhost:5000/lost-animals/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(newLostAnimal)
-                });
-            })
-            .catch((error) => {
-                alert(error);
-            })
-    }
+        try {
+            const city = await getCityFromCoordinates(address[0], address[1]);
+            const formData = new FormData();
+
+            formData.append('species', animal);
+            formData.append('location', city);
+            formData.append('color', color);
+            formData.append('gender', gender);
+            formData.append('distinctiveMarkings', distinctiveMarkings);
+            formData.append('lat', address[0].toString());
+            formData.append('lng', address[1].toString());
+            formData.append('date', getCurrentDate());
+            formData.append('hour', getCurrentTime());
+            formData.append('image', file);
+
+            const response = await fetch('http://localhost:5000/lost-animals/', {
+                method: 'POST',
+                body: formData,
+            });
+
+            const data = await response.json();
+            console.log('Animal saved:', data);
+        } catch (error) {
+            console.error(error);
+            alert('Erreur lors de l\'envoi');
+        }
+    };
 
     return (
         <div className="form-container">
@@ -89,7 +97,7 @@ const RegisterAnimal = () => {
                         placeholder="Sélectionner le genre"
                         option={gender}
                         setOption={setGender}
-                        options={['Male', 'Female', 'Inconnu']}
+                        options={['Male', 'Femelle', 'Inconnu']}
                     />
                 </div>
                 <div
@@ -123,6 +131,14 @@ const RegisterAnimal = () => {
                         setInputValue={setDistinctiveMarkings}
                     />
                 </div>
+                <div className="field-form">
+                    <KUpload
+                        label="Uploader une image"
+                        inputFile={file}
+                        setInputFile={setFile}
+                    />
+                </div>
+
             </div>
             <div className="form-footer">
                 <KButton

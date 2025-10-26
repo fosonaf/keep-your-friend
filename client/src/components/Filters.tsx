@@ -88,7 +88,8 @@ const Filters: React.FC<FiltersProps> = ({
                 >
                     <option value="">Filtrer par sexe</option>
                     <option value="Male">Male</option>
-                    <option value="Female">Female</option>
+                    <option value="Femelle">Femelle</option>
+                    <option value="Inconnu">Inconnu</option>
                 </select>
                 {genderFilter && (
                     <span

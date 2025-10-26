@@ -29,7 +29,7 @@ const KField: React.FC<KFieldProps> = ({
             if (data.length > 0) {
                 const { lat, lon } = data[0];
                 setInputValue([parseFloat(lat), parseFloat(lon)]);
-                setSelectedPosition(inputValue);
+                setSelectedPosition(location);
             }
         } catch (error) {
             console.error('Erreur lors du géocodage :', error);
