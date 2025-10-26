@@ -4,6 +4,7 @@ import * as Location from 'expo-location';
 import { RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../App';
+import KSelect from '../components/KSelect';
 
 type ValidatedScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Validated'>;
 type ValidatedScreenRouteProp = RouteProp<RootStackParamList, 'Validated'>;
@@ -22,6 +23,9 @@ export default function ValidatedScreen({ route }: Props) {
     const { photoUri } = route.params;
     const [location, setLocation] = useState<LocationCoords | null>(null);
     const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+    const [animal, setAnimal] = useState<string>('');
+    const [gender, setGender] = useState<string>('');
 
     const screenHeight = Dimensions.get('window').height;
     const photoHeight = screenHeight * 0.25;
@@ -44,8 +48,8 @@ export default function ValidatedScreen({ route }: Props) {
             <Text style={styles.title}>Photo validée ✅</Text>
 
             <Image
-                source={{ uri: photoUri }}
-                style={[styles.preview, { height: photoHeight }]}
+                source={{uri: photoUri}}
+                style={[styles.preview, {height: photoHeight}]}
                 resizeMode="contain"
             />
 
@@ -59,8 +63,28 @@ export default function ValidatedScreen({ route }: Props) {
                         <Text style={styles.coord}>Longitude : {location.longitude.toFixed(6)}</Text>
                     </>
                 ) : (
-                    <ActivityIndicator size="small" color="#FFA500" />
+                    <ActivityIndicator size="small" color="#FFA500"/>
                 )}
+            </View>
+
+            <View style={{ marginVertical: 10, width: '50%' }}>
+                <KSelect
+                    label="Animal"
+                    placeholder="Choisissez un animal"
+                    option={animal}
+                    setOption={setAnimal}
+                    options={['Chien', 'Chat', 'Lapin']}
+                />
+            </View>
+
+            <View style={{ width: '50%' }}>
+                <KSelect
+                    label="Sexe"
+                    placeholder="Sélectionnez le sexe"
+                    option={gender}
+                    setOption={setGender}
+                    options={['Male', 'Femelle', 'Inconnu']}
+                />
             </View>
         </View>
     );
@@ -73,6 +97,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'flex-start',
         paddingTop: 60,
+        width: '100%',
     },
     title: {
         color: 'white',
