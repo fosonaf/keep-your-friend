@@ -2,21 +2,19 @@ import KButton from "../components/form/KButton.tsx";
 import KField from "../components/form/KField.tsx";
 import KSelect from "../components/form/KSelect.tsx";
 import KUpload from "../components/form/KUpload.tsx";
-import {useState} from "react";
+import { useState } from "react";
 import '../styles/registerAnimal.css'
 import '../styles/form.css'
-import {LostAnimal} from "../types/lostAnimals.ts";
-import {getCurrentDate, getCurrentTime} from "../utils/utils.ts";
+import { getCurrentDate, getCurrentTime } from "../utils/utils.ts";
 
 const RegisterAnimal = () => {
-
     const [animal, setAnimal] = useState<string>('');
     const [color, setColor] = useState<string>('');
     const [address, setAddress] = useState<string | number[]>('');
     const [gender, setGender] = useState<string>('');
     const [distinctiveMarkings, setDistinctiveMarkings] = useState<string>('');
     const [file, setFile] = useState<File | null>(null);
-
+    const [loading, setLoading] = useState<boolean>(false);
 
     const isAddressValid =
         Array.isArray(address) &&
@@ -24,12 +22,10 @@ const RegisterAnimal = () => {
         address.every((item) => typeof item === 'number');
     const enableSubmit = animal.length && color.length && isAddressValid && gender.length && !!file;
 
-    async function getCityFromCoordinates(lat, lng) {
+    async function getCityFromCoordinates(lat: number, lng: number) {
         const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&addressdetails=1`;
-
         const response = await fetch(url);
         const data = await response.json();
-
         return data.address.city ||
             data.address.town ||
             data.address.village ||
@@ -37,7 +33,7 @@ const RegisterAnimal = () => {
             data.address.hamlet ||
             data.address.county ||
             data.address.state_district ||
-            data.address.state
+            data.address.state;
     }
 
     const saveAnimal = async () => {
@@ -46,10 +42,10 @@ const RegisterAnimal = () => {
             return;
         }
 
+        setLoading(true);
         try {
             const city = await getCityFromCoordinates(address[0], address[1]);
             const formData = new FormData();
-
             formData.append('species', animal);
             formData.append('location', city);
             formData.append('color', color);
@@ -72,9 +68,12 @@ const RegisterAnimal = () => {
 
             const data = await response.json();
             console.log('Animal saved:', data);
+            alert('Animal enregistré avec succès !');
         } catch (error) {
             console.error(error);
             alert('Erreur lors de l\'envoi : ' + error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -82,9 +81,7 @@ const RegisterAnimal = () => {
         <div className="form-container">
             <div className="form-body">
                 <h2>Register an animal</h2>
-                <div
-                    className="field-form"
-                >
+                <div className="field-form">
                     <KSelect
                         label="Animal"
                         placeholder="Animal"
@@ -93,9 +90,7 @@ const RegisterAnimal = () => {
                         options={['Chien', 'Chat', 'Lapin']}
                     />
                 </div>
-                <div
-                    className="field-form"
-                >
+                <div className="field-form">
                     <KSelect
                         label="Sexe"
                         placeholder="Sélectionner le genre"
@@ -104,9 +99,7 @@ const RegisterAnimal = () => {
                         options={['Male', 'Femelle', 'Inconnu']}
                     />
                 </div>
-                <div
-                    className="field-form"
-                >
+                <div className="field-form">
                     <KField
                         label="Couleur"
                         placeholder="Entrer la couleur de l'animal"
@@ -114,9 +107,7 @@ const RegisterAnimal = () => {
                         setInputValue={setColor}
                     />
                 </div>
-                <div
-                    className="field-form"
-                >
+                <div className="field-form">
                     <KField
                         label="Adresse"
                         placeholder="Entrer l'addresse où l'animal a été vu"
@@ -125,9 +116,7 @@ const RegisterAnimal = () => {
                         autocompleteLocation={true}
                     />
                 </div>
-                <div
-                    className="field-form"
-                >
+                <div className="field-form">
                     <KField
                         label="Signes distinctifs"
                         placeholder="Lister les signes distinctifs"
@@ -142,13 +131,13 @@ const RegisterAnimal = () => {
                         setInputFile={setFile}
                     />
                 </div>
-
             </div>
+
             <div className="form-footer">
                 <KButton
-                    label="Enregistrer"
+                    label={loading ? "Enregistrement..." : "Enregistrer"}
                     handleClick={saveAnimal}
-                    disabled={!enableSubmit}
+                    disabled={!enableSubmit || loading}
                 />
             </div>
         </div>
