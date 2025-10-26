@@ -17,7 +17,9 @@ export default function PreviewScreen({ route, navigation }) {
 
                 <TouchableOpacity
                     style={[styles.button, styles.primary]}
-                    onPress={() => alert('Photo validée ✅')}
+                    onPress={() =>
+                        navigation.navigate('Validated', { photoUri })
+                    }
                 >
                     <Text style={styles.buttonText}>✅ Valider</Text>
                 </TouchableOpacity>
