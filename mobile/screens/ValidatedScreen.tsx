@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
-import { View, Image, StyleSheet, Text, ActivityIndicator, Dimensions } from 'react-native';
+import { ScrollView, View, Image, StyleSheet, Text, ActivityIndicator, Dimensions } from 'react-native';
 import * as Location from 'expo-location';
 import { RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../App';
+import KButton from "../components/KButton";
+import KField from "../components/KField";
 import KSelect from '../components/KSelect';
 
 type ValidatedScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Validated'>;
@@ -26,9 +28,15 @@ export default function ValidatedScreen({ route }: Props) {
 
     const [animal, setAnimal] = useState<string>('');
     const [gender, setGender] = useState<string>('');
+    const [color, setColor] = useState<string>('');
+    const [distinctiveMark, setDistinctiveMark] = useState<string>('');
 
     const screenHeight = Dimensions.get('window').height;
     const photoHeight = screenHeight * 0.25;
+
+    const submitAnimalRequest = () => {
+        alert('Lille OSC');
+    }
 
     useEffect(() => {
         (async () => {
@@ -44,15 +52,17 @@ export default function ValidatedScreen({ route }: Props) {
     }, []);
 
     return (
-        <View style={styles.container}>
+        <ScrollView
+            style={{ flex: 1, backgroundColor: 'black' }}
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}
+        >
             <Text style={styles.title}>Photo validée ✅</Text>
-
             <Image
                 source={{uri: photoUri}}
                 style={[styles.preview, {height: photoHeight}]}
                 resizeMode="contain"
             />
-
             <View style={styles.infoBox}>
                 <Text style={styles.subtitle}>📍 Position actuelle :</Text>
                 {errorMsg ? (
@@ -66,7 +76,6 @@ export default function ValidatedScreen({ route }: Props) {
                     <ActivityIndicator size="small" color="#FFA500"/>
                 )}
             </View>
-
             <View style={{ marginVertical: 10, width: '50%' }}>
                 <KSelect
                     label="Animal"
@@ -76,7 +85,6 @@ export default function ValidatedScreen({ route }: Props) {
                     options={['Chien', 'Chat', 'Lapin']}
                 />
             </View>
-
             <View style={{ width: '50%' }}>
                 <KSelect
                     label="Sexe"
@@ -86,17 +94,37 @@ export default function ValidatedScreen({ route }: Props) {
                     options={['Male', 'Femelle', 'Inconnu']}
                 />
             </View>
-        </View>
+            <View style={{ width: '50%' }}>
+                <KField
+                    placeholder="Entrer la couleur"
+                    label="Couleur"
+                    inputValue={color}
+                    setInputValue={setColor}
+                />
+            </View>
+            <View style={{ width: '50%' }}>
+                <KField
+                    placeholder="Décrivez une particularité"
+                    label="Marques distinctives (facultatif)"
+                    inputValue={distinctiveMark}
+                    setInputValue={setDistinctiveMark}
+                    multiline={true}
+                />
+            </View>
+            <KButton
+                label="Envoyer"
+                handleClick={submitAnimalRequest}
+            />
+        </ScrollView>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: 'black',
+    scrollContent: {
         alignItems: 'center',
         justifyContent: 'flex-start',
         paddingTop: 60,
+        paddingBottom: 80,
         width: '100%',
     },
     title: {
