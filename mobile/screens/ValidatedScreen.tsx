@@ -73,33 +73,39 @@ export default function ValidatedScreen({ route }: Props) {
         try {
             setLoading(true);
 
-            const fileBase64 = await FileSystem.readAsStringAsync(photoUri, {
-                encoding: 'base64',
-            });
+            const formData = new FormData();
+            formData.append('species', animal);
+            formData.append('gender', gender);
+            formData.append('color', color);
+            formData.append('distinctiveMarkings', distinctiveMarks || '');
+            formData.append('location', city);
+            formData.append('lat', location.latitude.toString());
+            formData.append('lng', location.longitude.toString());
+            formData.append('date', getCurrentDate());
+            formData.append('hour', getCurrentTime());
 
-            const animalData = {
-                species: animal,
-                gender,
-                color,
-                distinctiveMarks,
-                location: city,
-                lat: location.latitude,
-                lng: location.longitude,
-                image: `data:image/jpeg;base64,${fileBase64}`,
-                date: getCurrentDate(),
-                hour: getCurrentTime(),
-            };
+            formData.append('image', {
+                uri: photoUri,
+                type: 'image/jpeg',
+                name: 'photo.jpg',
+            } as any);
 
-            await fetch(`http://192.168.1.38:5000/lost-animals/`, {
+            const response = await fetch(`http://192.168.1.38:5000/lost-animals`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(animalData),
+                body: formData,
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
             });
+
+            if (!response.ok) {
+                throw new Error(`Erreur ${response.status}`);
+            }
 
             Alert.alert('Succès', 'Animal enregistré avec succès 🐾');
         } catch (error) {
             console.error('Erreur:', error);
-            Alert.alert('Erreur', 'Une erreur est survenue pendant l’envoi. ' + error);
+            Alert.alert('Erreur', 'Une erreur est survenue pendant l\'envoi. ' + error);
         } finally {
             setLoading(false);
         }
