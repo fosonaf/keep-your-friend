@@ -9,25 +9,32 @@ const upload = multer({ dest: 'uploads/' });
 router.post('/', upload.single('image'), async (req: any, res: any) => {
     try {
         const { species, location, color, image, gender, distinctiveMarkings, lat, lng, date, hour } = req.body;
-        const file = req.file;
-        if (!file) {
-            return res.status(400).json({ message: 'Image manquante' });
+
+        let imageUrl = '';
+
+        if (image && !req.file) {
+            const result = await cloudinary.uploader.upload(image, {
+                folder: 'kyf/animals',
+            });
+            imageUrl = result.secure_url;
         }
 
-        if (!file) {
-            res.status(400).json({message: 'Image manquante'})
-            throw new Error('Image manquante');
+        if (req.file) {
+            const result = await cloudinary.uploader.upload(req.file.path, {
+                folder: 'kyf/animals',
+            });
+            imageUrl = result.secure_url;
         }
 
-        const result = await cloudinary.uploader.upload(file.path, {
-            folder: 'kyf/animals',
-        });
+        if (!imageUrl) {
+            return res.status(400).json({ message: 'Aucune image fournie' });
+        }
 
         const lostAnimal = new LostAnimal({
             species,
             location,
             color,
-            imageUrl: result.secure_url,
+            imageUrl,
             gender,
             distinctiveMarkings,
             lat,

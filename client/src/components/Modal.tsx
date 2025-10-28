@@ -30,18 +30,14 @@ const Modal: React.FC<ModalProps> = ({
                                      }) => {
     const modalRef = useRef<HTMLDivElement>(null);
 
-    // Bloquer le scroll en arrière-plan quand la modal est ouverte
     useEffect(() => {
-        // Désactiver le scroll en arrière-plan
         document.body.style.overflow = 'hidden';
 
-        // Rétablir le scroll lorsque la modal est fermée
         return () => {
             document.body.style.overflow = 'auto';
         };
     }, []);
 
-    // Fermer avec la touche "Escape"
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.key === 'Escape') {
@@ -52,7 +48,6 @@ const Modal: React.FC<ModalProps> = ({
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [closeModal]);
 
-    // Fermer quand on clique à l'extérieur de la modal
     const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
         if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
             closeModal();
