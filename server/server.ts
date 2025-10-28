@@ -1,32 +1,16 @@
-import express from 'express';
-import mongoose from 'mongoose';
-import dotenv from 'dotenv';
-import cors from 'cors';
-import lostAnimalsRoutes from './routes/lostAnimals';
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 
-// Charger les variables d'environnement
-dotenv.config();
+async function bootstrap() {
+    const app = await NestFactory.create<NestFastifyApplication>(
+        AppModule,
+        new FastifyAdapter(),
+    );
 
-const app = express();
-const PORT = process.env.PORT || 5000;
-const MONGODB_URI = process.env.MONGODB_URI as string;
+    app.enableCors();
 
-// Middlewares
-app.use(cors());
-app.use(express.json({ limit: '15mb' }));
-app.use(express.urlencoded({ limit: '10mb', extended: true }));
-
-// Connexion à MongoDB
-mongoose.connect(MONGODB_URI)
-    .then(() => {
-        console.log('✅ Connecté à MongoDB Atlas');
-        app.listen(PORT, () => {
-            console.log(`🚀 Serveur lancé sur http://localhost:${PORT}`);
-        });
-    })
-    .catch((error) => {
-        console.error('❌ Erreur de connexion à MongoDB :', error);
-    });
-
-// Utilisation des routes pour les animaux perdus
-app.use('/lost-animals', lostAnimalsRoutes);
+    await app.listen(process.env.PORT || 5000, '0.0.0.0');
+    console.log(`🚀 Serveur lancé sur http://localhost:${process.env.PORT || 5000}`);
+}
+bootstrap();

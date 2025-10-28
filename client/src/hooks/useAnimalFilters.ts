@@ -15,7 +15,7 @@ export function useAnimalFilters() {
         async function fetchAnimals() {
             setLoading(true)
             try {
-                const response = await fetch('http://localhost:5000/lost-animals/')
+                const response = await fetch('http://localhost:5000/lost-animals')
                 if (!response.ok) {
                     throw new Error('Erreur serveur')
                 }

@@ -1,10 +1,21 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
     "module": "CommonJS",
-    "rootDir": "./",
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "es2021",
+    "sourceMap": true,
     "outDir": "./dist",
-    "esModuleInterop": true,
-    "strict": true
-  }
+    "baseUrl": "./",
+    "incremental": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "types": ["node"],
+    "esModuleInterop": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
 }

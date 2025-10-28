@@ -57,7 +57,7 @@ const RegisterAnimal = () => {
             formData.append('hour', getCurrentTime());
             formData.append('image', file);
 
-            const response = await fetch('http://localhost:5000/lost-animals/', {
+            const response = await fetch('http://localhost:5000/lost-animals', {
                 method: 'POST',
                 body: formData,
             });

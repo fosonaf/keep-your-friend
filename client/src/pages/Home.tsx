@@ -2,8 +2,8 @@ import Filters from '../components/Filters';
 import AnimalCard from '../components/AnimalCard';
 import Modal from '../components/Modal';
 import { useAnimalFilters } from "../hooks/useAnimalFilters";
-import {LostAnimal} from "../types/lostAnimals.ts";
-import {useState} from "react";
+import { LostAnimal } from "../types/lostAnimals.ts";
+import { useState } from "react";
 
 const Home = () => {
     const {
