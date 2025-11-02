@@ -1,7 +1,9 @@
-import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import {View, Text, Image, TouchableOpacity, StyleSheet, Alert} from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../App';
+import {getCurrentDate, getCurrentTime} from "../utils/dateUtils";
+import {useState} from "react";
 
 type PreviewScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Preview'>;
 type PreviewScreenRouteProp = RouteProp<RootStackParamList, 'Preview'>;
@@ -13,6 +15,44 @@ type Props = {
 
 export default function PreviewScreen({ route, navigation }: Props) {
     const { photoUri } = route.params;
+
+    const [loading, setLoading] = useState(false);
+
+    const submitAnimalRequest = async () => {
+        try {
+            setLoading(true);
+
+            const formData = new FormData();
+
+            formData.append('image', {
+                uri: photoUri,
+                type: 'image/jpeg',
+                name: 'photo.jpg',
+            } as any);
+
+            const response = await fetch(`http://192.168.1.20:5000/lost-animals/validate`, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error(`Erreur ${response.status}`);
+            }
+
+            Alert.alert('Succès', 'Animal enregistré avec succès 🐾');
+            //navigation.navigate('Validated', { photoUri })
+
+        } catch (error) {
+            console.error('Erreur:', error);
+            Alert.alert('Erreur', 'Une erreur est survenue pendant l\'envoi. ' + error);
+            //navigation.goBack()
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <View style={styles.container}>
@@ -28,7 +68,7 @@ export default function PreviewScreen({ route, navigation }: Props) {
 
                 <TouchableOpacity
                     style={[styles.button, styles.primary]}
-                    onPress={() => navigation.navigate('Validated', { photoUri })}
+                    onPress={submitAnimalRequest}
                 >
                     <Text style={styles.buttonText}>✅ Valider</Text>
                 </TouchableOpacity>
