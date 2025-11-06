@@ -25,7 +25,6 @@ export class LostAnimalsController {
 
             for await (const part of parts) {
                 if (part.type === 'file') {
-                    // C'est un fichier
                     const chunks: Buffer[] = [];
                     for await (const chunk of part.file) {
                         chunks.push(chunk);
@@ -34,7 +33,6 @@ export class LostAnimalsController {
                         fileBuffer = Buffer.concat(chunks);
                     }
                 } else {
-                    // C'est un champ texte
                     fields[part.fieldname] = part.value as string;
                 }
             }

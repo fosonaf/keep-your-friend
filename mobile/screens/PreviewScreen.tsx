@@ -1,9 +1,8 @@
-import {View, Text, Image, TouchableOpacity, StyleSheet, Alert} from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../App';
-import {getCurrentDate, getCurrentTime} from "../utils/dateUtils";
-import {useState} from "react";
+import { useState } from "react";
 
 type PreviewScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Preview'>;
 type PreviewScreenRouteProp = RouteProp<RootStackParamList, 'Preview'>;
@@ -43,12 +42,11 @@ export default function PreviewScreen({ route, navigation }: Props) {
             }
 
             Alert.alert('Succès', 'Animal enregistré avec succès 🐾');
-            //navigation.navigate('Validated', { photoUri })
+            // navigate to summary screen
 
         } catch (error) {
             console.error('Erreur:', error);
             Alert.alert('Erreur', 'Une erreur est survenue pendant l\'envoi. ' + error);
-            //navigation.goBack()
         } finally {
             setLoading(false);
         }
