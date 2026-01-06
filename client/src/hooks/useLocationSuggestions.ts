@@ -1,5 +1,9 @@
 import { useState, useEffect } from 'react';
 
+type GoogleAutocompletePrediction = {
+    description: string;
+};
+
 export function useLocationSuggestions(query: string, enable: boolean = true) {
     const [suggestions, setSuggestions] = useState<string[]>([]);
 
@@ -10,25 +14,39 @@ export function useLocationSuggestions(query: string, enable: boolean = true) {
         }
 
         const timer = setTimeout(async () => {
+            const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string | undefined;
+
+            if (!apiKey) {
+                console.error('VITE_GOOGLE_MAPS_API_KEY est manquant pour les suggestions de lieu.');
+                setSuggestions([]);
+                return;
+            }
+
             try {
                 const response = await fetch(
-                    `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`
+                    `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(
+                        query
+                    )}&types=(cities)&language=fr&key=${apiKey}`
                 );
                 const data = await response.json();
 
-                if (data.length > 0) {
-                    setSuggestions(data.map((item: any) => item.display_name));
+                if (data.status === 'OK' && Array.isArray(data.predictions)) {
+                    setSuggestions(
+                        (data.predictions as GoogleAutocompletePrediction[]).map(
+                            (p) => p.description
+                        )
+                    );
                 } else {
                     setSuggestions([]);
                 }
             } catch (error) {
-                console.error('Erreur de récupération des suggestions', error);
+                console.error('Erreur de récupération des suggestions Google Places', error);
                 setSuggestions([]);
             }
         }, 300); // debounce
 
         return () => clearTimeout(timer);
-    }, [query]);
+    }, [query, enable]);
 
     return suggestions;
 }

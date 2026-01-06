@@ -1,18 +1,24 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useMemo } from 'react';
 import '../styles/modal.css';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
+import { GoogleMap, Marker, InfoWindow, useJsApiLoader } from '@react-google-maps/api';
 
 type ModalProps = {
     imageUrl: string;
     species: string;
     location: string;
+    date: string;
+    hour: string;
     gender: string;
     color: string;
     distinctiveMarkings: string;
     lat: number;
     lng: number;
     closeModal: () => void;
+};
+
+const mapContainerStyle: React.CSSProperties = {
+    height: '100%',
+    width: '100%',
 };
 
 const Modal: React.FC<ModalProps> = ({
@@ -54,22 +60,39 @@ const Modal: React.FC<ModalProps> = ({
         }
     };
 
+    const center = useMemo(
+        () => ({ lat, lng }),
+        [lat, lng]
+    );
+
+    const { isLoaded } = useJsApiLoader({
+        id: 'google-map-script-modal',
+        googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string,
+    });
+
     return (
         <div className="modal-overlay" onClick={handleOverlayClick}>
             <div className="modal-content" ref={modalRef}>
                 <div className="modal-left">
-                    <MapContainer center={[lat, lng]} zoom={13} style={{ height: '100%', width: '100%' }}>
-                        <TileLayer
-                            attribution='&copy; OpenStreetMap contributors'
-                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                        />
-                        <Marker position={[lat, lng]}>
-                            <Popup>
-                                <strong>{species}</strong><br />
-                                Vu à {location}
-                            </Popup>
-                        </Marker>
-                    </MapContainer>
+                    {!isLoaded ? (
+                        <div>Chargement de la carte...</div>
+                    ) : (
+                        <GoogleMap
+                            mapContainerStyle={mapContainerStyle}
+                            center={center}
+                            zoom={13}
+                        >
+                            <Marker position={center}>
+                                <InfoWindow position={center}>
+                                    <div>
+                                        <strong>{species}</strong>
+                                        <br />
+                                        Vu à {location}
+                                    </div>
+                                </InfoWindow>
+                            </Marker>
+                        </GoogleMap>
+                    )}
                 </div>
                 <div className="modal-right">
                     <img src={imageUrl} alt={species} />

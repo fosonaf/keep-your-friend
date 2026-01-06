@@ -1,25 +1,13 @@
-import { useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
-import L from 'leaflet';
+import { useMemo, useState } from 'react';
+import { GoogleMap, Marker, InfoWindow, useJsApiLoader } from '@react-google-maps/api';
 import Filters from '../components/Filters';
 import { useAnimalFilters } from '../hooks/useAnimalFilters';
-import 'leaflet/dist/leaflet.css';
+import { geocodeLocation } from '../utils/geocodeLocation';
 
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-    iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-    iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-    shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-});
-
-// Composant pour bouger la carte
-function MapUpdater({ position }: { position: [number, number] | null }) {
-    const map = useMap();
-    if (position) {
-        map.setView(position, 13); // Zoom 13
-    }
-    return null;
-}
+const containerStyle: React.CSSProperties = {
+    height: '100%',
+    width: '100%',
+};
 
 function MapPage() {
     const {
@@ -35,19 +23,31 @@ function MapPage() {
     } = useAnimalFilters();
 
     const [selectedPosition, setSelectedPosition] = useState<[number, number] | null>(null);
+    const [selectedMarkerIndex, setSelectedMarkerIndex] = useState<number | null>(null);
 
     const handleLocationSelect = async (location: string) => {
         try {
-            const response = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(location)}&format=json`);
-            const data = await response.json();
-            if (data.length > 0) {
-                const { lat, lon } = data[0];
-                setSelectedPosition([parseFloat(lat), parseFloat(lon)]);
+            const coords = await geocodeLocation(location);
+            if (coords) {
+                setSelectedPosition(coords);
             }
         } catch (error) {
             console.error('Erreur lors du géocodage :', error);
         }
     };
+
+    const mapCenter = useMemo(
+        () =>
+            selectedPosition
+                ? { lat: selectedPosition[0], lng: selectedPosition[1] }
+                : { lat: 48.8566, lng: 2.3522 },
+        [selectedPosition]
+    );
+
+    const { isLoaded } = useJsApiLoader({
+        id: 'google-map-script-page',
+        googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string,
+    });
 
     return (
         <div style={{ height: '80vh', width: '100%' }}>
@@ -64,41 +64,46 @@ function MapPage() {
                 onLocationSelect={handleLocationSelect}
             />
 
-            <MapContainer
-                center={[48.8566, 2.3522]}
-                zoom={13}
-                scrollWheelZoom={false}
-                style={{ height: '100%', width: '100%' }}
-            >
-                <TileLayer
-                    attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>'
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                />
-
-                {selectedPosition && <MapUpdater position={selectedPosition} />}
-
-                {filteredAnimals.map((animal, index) => (
-                    <Marker key={index} position={[animal.lat, animal.lng]}>
-                        <Popup>
-                            <div style={{ textAlign: 'center', maxWidth: '200px' }}>
-                                <img
-                                    src={animal.imageUrl}
-                                    alt={animal.species}
-                                    width="100"
-                                    height="100"
-                                    style={{ borderRadius: '8px', objectFit: 'cover' }}
-                                />
-                                <p><strong>Espèce :</strong> {animal.species}</p>
-                                <p><strong>Sexe :</strong> {animal.gender}</p>
-                                <p><strong>Couleur :</strong> {animal.color}</p>
-                                <p><strong>Marques :</strong> {animal.distinctiveMarkings}</p>
-                                <p><strong>Lieu :</strong> {animal.location}</p>
-                                <p><strong>Date :</strong> {animal.date} à {animal.hour}</p>
-                            </div>
-                        </Popup>
-                    </Marker>
-                ))}
-            </MapContainer>
+            {!isLoaded ? (
+                <div>Chargement de la carte...</div>
+            ) : (
+                <GoogleMap
+                    mapContainerStyle={containerStyle}
+                    center={mapCenter}
+                    zoom={13}
+                >
+                    {filteredAnimals.map((animal, index) => (
+                        <Marker
+                            key={index}
+                            position={{ lat: animal.lat, lng: animal.lng }}
+                            onClick={() => setSelectedMarkerIndex(index)}
+                        >
+                            {selectedMarkerIndex === index && (
+                                <InfoWindow
+                                    position={{ lat: animal.lat, lng: animal.lng }}
+                                    onCloseClick={() => setSelectedMarkerIndex(null)}
+                                >
+                                    <div style={{ textAlign: 'center', maxWidth: '200px' }}>
+                                        <img
+                                            src={animal.imageUrl}
+                                            alt={animal.species}
+                                            width="100"
+                                            height="100"
+                                            style={{ borderRadius: '8px', objectFit: 'cover' }}
+                                        />
+                                        <p><strong>Espèce :</strong> {animal.species}</p>
+                                        <p><strong>Sexe :</strong> {animal.gender}</p>
+                                        <p><strong>Couleur :</strong> {animal.color}</p>
+                                        <p><strong>Marques :</strong> {animal.distinctiveMarkings}</p>
+                                        <p><strong>Lieu :</strong> {animal.location}</p>
+                                        <p><strong>Date :</strong> {animal.date} à {animal.hour}</p>
+                                    </div>
+                                </InfoWindow>
+                            )}
+                        </Marker>
+                    ))}
+                </GoogleMap>
+            )}
         </div>
     );
 }
