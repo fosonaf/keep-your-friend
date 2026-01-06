@@ -29,7 +29,7 @@ export default function PreviewScreen({ route, navigation }: Props) {
                 name: 'photo.jpg',
             } as any);
 
-            const response = await fetch(`http://192.168.1.20:5000/lost-animals/validate`, {
+            const response = await fetch(`http://192.168.1.18:5000/lost-animals/validate`, {
                 method: 'POST',
                 body: formData,
                 headers: {

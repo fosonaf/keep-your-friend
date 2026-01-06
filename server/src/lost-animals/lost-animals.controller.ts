@@ -67,17 +67,9 @@ export class LostAnimalsController {
             console.log('Type MIME:', data.mimetype);
             console.log('Taille du fichier:', fileBuffer.length);
 
-            // Appel à Hugging Face pour validation
             const validation = await this.aiVisionService.validateAnimalImage(fileBuffer);
-            // const validation = await this.lostAnimalsService.validateAnimalImage(fileBuffer);
 
-            throw new Error('Not implemented yet');
-            /*return res.status(200).send({
-                message: 'Image reçue avec succès',
-                filename: data.filename,
-                size: fileBuffer.length,
-                mimetype: data.mimetype
-            });*/
+            return res.status(200).send(validation);
 
         } catch (error) {
             console.error('Erreur lors de la validation:', error);

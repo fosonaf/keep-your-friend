@@ -1,107 +1,176 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { HfInference } from '@huggingface/inference';
 import { ConfigService } from '@nestjs/config';
 
 export interface AnimalValidationResult {
     isValid: boolean;
-    species?: string;
+    species?: string; // espèce (chien, chat, oiseau...)
+    breed?: string;   // race si disponible (Labrador, Siamois...)
+    colors?: string[]; // couleurs dominantes
     confidence?: number;
     message: string;
     reason?: 'no_animal' | 'low_confidence' | 'unclear';
 }
 
+interface VisionLabel {
+    description: string;
+    score: number;
+}
+
+interface VisionColor {
+    color: { red: number; green: number; blue: number };
+    score: number;
+    pixelFraction: number;
+}
+
 @Injectable()
 export class AiVisionService {
     private readonly logger = new Logger(AiVisionService.name);
-    private hf: HfInference;
+    private readonly apiKey: string;
 
     constructor(private configService: ConfigService) {
-        // TODO config
-        const token = this.configService.get<string>('HUGGING_FACE_TOKEN');
-        if (!token) {
-            this.logger.error('HUGGING_FACE_TOKEN manquant dans .env');
-            throw new Error('Configuration Hugging Face manquante');
+        const apiKey = this.configService.get<string>('CLOUD_VISION_API_KEY');
+        if (!apiKey) {
+            this.logger.error('CLOUD_VISION_API_KEY manquant dans .env');
+            throw new Error('Configuration Google Cloud Vision manquante');
         }
-        this.hf = new HfInference(token);
+        this.apiKey = apiKey;
     }
 
     async validateAnimalImage(imageBuffer: Buffer): Promise<AnimalValidationResult> {
         try {
-            this.logger.log('Analyse de l\'image par Hugging Face...');
+            this.logger.log('Analyse de l\'image via Google Cloud Vision...');
 
-            const token = this.configService.get<string>('HUGGING_FACE_TOKEN');
-
-            // 🔧 Convertir le buffer en base64
             const base64Image = imageBuffer.toString('base64');
 
             const response = await fetch(
-                'https://api-inference.huggingface.co/models/microsoft/resnet-50',
+                `https://vision.googleapis.com/v1/images:annotate?key=${this.apiKey}`,
                 {
                     method: 'POST',
                     headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json', // 👈 Ajouté
+                        'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        inputs: base64Image, // 👈 En base64, pas en Buffer brut
+                        requests: [
+                            {
+                                image: { content: base64Image },
+                                features: [
+                                    { type: 'LABEL_DETECTION', maxResults: 10 },
+                                    { type: 'IMAGE_PROPERTIES', maxResults: 1 },
+                                ],
+                            },
+                        ],
                     }),
-                }
+                },
             );
 
             if (!response.ok) {
-                const error = await response.text();
-                this.logger.error(`Erreur API HF: ${response.status} - ${error}`);
-                throw new Error(`Hugging Face API error: ${response.status}`);
+                const errorText = await response.text();
+                this.logger.error(`Erreur API Google Vision: ${response.status} - ${errorText}`);
+                throw new Error(`Google Vision API error: ${response.status}`);
             }
 
-            const result = await response.json();
+            const json = await response.json();
+            const visionResponse = json.responses?.[0];
 
-            this.logger.log(`Top 3 prédictions: ${JSON.stringify(result.slice(0, 3))}`);
+            const labels: VisionLabel[] = visionResponse?.labelAnnotations || [];
+            const colorsData: VisionColor[] =
+                visionResponse?.imagePropertiesAnnotation?.dominantColors?.colors || [];
+
+            if (!labels.length) {
+                return {
+                    isValid: false,
+                    message:
+                        "Aucun animal détecté sur la photo. Assurez-vous que l'animal est bien visible 🔍",
+                    reason: 'no_animal',
+                };
+            }
 
             const animalKeywords = [
-                'cat', 'dog', 'bird', 'tiger', 'lion', 'bear', 'elephant',
-                'horse', 'cow', 'sheep', 'pig', 'chicken', 'duck', 'goose',
-                'rabbit', 'hamster', 'fox', 'wolf', 'deer', 'zebra',
-                'giraffe', 'monkey', 'ape', 'snake', 'lizard', 'turtle',
-                'frog', 'fish', 'shark', 'whale', 'dolphin', 'seal',
-                'eagle', 'owl', 'parrot', 'penguin', 'flamingo',
-                'mouse', 'rat', 'squirrel', 'hedgehog', 'bat'
+                'cat',
+                'dog',
+                'bird',
+                'mammal',
+                'animal',
+                'pet',
+                'feline',
+                'canine',
+                'horse',
+                'cow',
+                'sheep',
+                'pig',
+                'rabbit',
+                'hamster',
+                'fox',
+                'wolf',
             ];
 
-            const animalDetection = result.find(prediction => {
-                const label = prediction.label.toLowerCase();
-                return animalKeywords.some(keyword => label.includes(keyword));
+            const animalLabel =
+                labels.find((label) =>
+                    animalKeywords.some((keyword) =>
+                        label.description.toLowerCase().includes(keyword),
+                    ),
+                ) || labels[0];
+
+            const confidence = Math.round((animalLabel.score || 0) * 100);
+
+            if (animalLabel.score < 0.3) {
+                const { species } = this.extractSpeciesAndBreed(animalLabel.description);
+                return {
+                    isValid: false,
+                    species,
+                    confidence,
+                    message:
+                        "L'image n'est pas assez claire. Essayez de prendre une meilleure photo 📸",
+                    reason: 'low_confidence',
+                };
+            }
+
+            const { species, breed } = this.extractSpeciesAndBreed(animalLabel.description);
+            const colors = this.extractColors(colorsData);
+
+            this.logger.log('result : ', {
+                isValid: true,
+                species,
+                breed,
+                colors,
+                confidence,
+                message: `${species}${breed ? ` (${breed})` : ''} détecté avec ${confidence}% de confiance ✅`,
             });
-
-            if (!animalDetection) {
-                return {
-                    isValid: false,
-                    message: "Aucun animal détecté sur la photo. Assurez-vous que l'animal est bien visible 🔍",
-                    reason: 'no_animal'
-                };
-            }
-
-            if (animalDetection.score < 0.3) {
-                return {
-                    isValid: false,
-                    species: animalDetection.label,
-                    confidence: Math.round(animalDetection.score * 100),
-                    message: "L'image n'est pas assez claire. Essayez de prendre une meilleure photo 📸",
-                    reason: 'low_confidence'
-                };
-            }
 
             return {
                 isValid: true,
-                species: this.translateSpecies(animalDetection.label),
-                confidence: Math.round(animalDetection.score * 100),
-                message: `${this.translateSpecies(animalDetection.label)} détecté avec ${Math.round(animalDetection.score * 100)}% de confiance ✅`
+                species,
+                breed,
+                colors,
+                confidence,
+                message: `${species}${breed ? ` (${breed})` : ''} détecté avec ${confidence}% de confiance ✅`,
             };
-
         } catch (error) {
-            this.logger.error('Erreur lors de l\'analyse Hugging Face:', error);
+            this.logger.error('Erreur lors de l\'analyse Google Vision:', error);
             throw new Error('Impossible d\'analyser l\'image');
         }
+    }
+
+    /**
+     * Traduit / simplifie les labels Vision en espèce + race
+     */
+    private extractSpeciesAndBreed(label: string): { species: string; breed?: string } {
+        const lower = label.toLowerCase();
+
+        // Espèce générique
+        if (lower.includes('cat') || lower.includes('feline')) {
+            return { species: 'Chat', breed: this.translateSpecies(label) };
+        }
+        if (lower.includes('dog') || lower.includes('canine')) {
+            return { species: 'Chien', breed: this.translateSpecies(label) };
+        }
+        if (lower.includes('bird')) {
+            return { species: 'Oiseau', breed: this.translateSpecies(label) };
+        }
+
+        // Par défaut on renvoie le label traduit comme espèce
+        const translated = this.translateSpecies(label);
+        return { species: translated };
     }
 
     /**
@@ -181,7 +250,42 @@ export class AiVisionService {
             'dolphin': 'Dauphin',
         };
 
-        const lowerLabel = label.toLowerCase().replace(/_/g, '_');
+        const lowerLabel = label.toLowerCase().replace(/ /g, '_');
         return translations[lowerLabel] || label.replace(/_/g, ' ');
+    }
+
+    /**
+     * Déduit des noms de couleurs simples à partir des couleurs dominantes RGB
+     */
+    private extractColors(colors: VisionColor[]): string[] {
+        if (!colors || !colors.length) return [];
+
+        const names = colors
+            .sort((a, b) => b.pixelFraction - a.pixelFraction)
+            .slice(0, 5)
+            .map(({ color }) => this.rgbToColorName(color.red, color.green, color.blue));
+
+        // Uniques, on enlève les "inconnue"
+        return Array.from(new Set(names.filter((c) => c !== 'inconnue')));
+    }
+
+    private rgbToColorName(r = 0, g = 0, b = 0): string {
+        const max = Math.max(r, g, b);
+        const min = Math.min(r, g, b);
+
+        // Noir / blanc / gris
+        if (max < 40) return 'noir';
+        if (min > 215) return 'blanc';
+        if (max - min < 25) return 'gris';
+
+        if (r > g && r > b) {
+            // Plutôt marron / roux
+            if (g > b) return 'marron';
+            return 'roux';
+        }
+        if (g > r && g > b) return 'vert';
+        if (b > r && b > g) return 'bleu';
+
+        return 'inconnue';
     }
 }
