@@ -101,10 +101,9 @@ function MapPage() {
                                             style={{
                                                 textAlign: 'center',
                                                 maxWidth: '220px',
-                                                backgroundColor: '#222',
-                                                color: 'orange',
                                                 padding: '8px 10px',
                                                 borderRadius: '8px',
+                                                color: '#000',
                                             }}
                                         >
                                             <img
