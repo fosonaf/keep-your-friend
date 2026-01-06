@@ -11,6 +11,7 @@ interface FiltersProps {
     setColorFilter: (value: string) => void;
     setLocationFilter: (value: string) => void;
     autocompleteLocation?: boolean;
+    enableLocationSuggestions?: boolean;
     onLocationSelect?: (location: string) => void;
 }
 
@@ -18,15 +19,16 @@ const Filters: React.FC<FiltersProps> = ({
                                              speciesFilter,
                                              genderFilter,
                                              colorFilter,
-                                             locationFilter,
+            locationFilter,
                                              setSpeciesFilter,
                                              setGenderFilter,
-                                             setColorFilter,
-                                             setLocationFilter,
-                                             autocompleteLocation = false,
-                                             onLocationSelect,
+            setColorFilter,
+            setLocationFilter,
+            autocompleteLocation = false,
+            enableLocationSuggestions = true,
+            onLocationSelect,
                                          }) => {
-    const locationSuggestions = useLocationSuggestions(locationFilter);
+    const locationSuggestions = useLocationSuggestions(locationFilter, enableLocationSuggestions);
     const [showSuggestions, setShowSuggestions] = useState(true);
 
     const handleSelectSuggestion = (suggestion: string) => {

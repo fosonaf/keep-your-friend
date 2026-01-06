@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react';
 
-type GoogleAutocompletePrediction = {
-    description: string;
-};
+declare const google: any;
 
 export function useLocationSuggestions(query: string, enable: boolean = true) {
     const [suggestions, setSuggestions] = useState<string[]>([]);
@@ -13,36 +11,28 @@ export function useLocationSuggestions(query: string, enable: boolean = true) {
             return;
         }
 
-        const timer = setTimeout(async () => {
-            const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string | undefined;
-
-            if (!apiKey) {
-                console.error('VITE_GOOGLE_MAPS_API_KEY est manquant pour les suggestions de lieu.');
+        const timer = setTimeout(() => {
+            if (typeof google === 'undefined' || !google.maps || !google.maps.places) {
                 setSuggestions([]);
                 return;
             }
 
-            try {
-                const response = await fetch(
-                    `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(
-                        query
-                    )}&types=(cities)&language=fr&key=${apiKey}`
-                );
-                const data = await response.json();
+            const service = new google.maps.places.AutocompleteService();
 
-                if (data.status === 'OK' && Array.isArray(data.predictions)) {
-                    setSuggestions(
-                        (data.predictions as GoogleAutocompletePrediction[]).map(
-                            (p) => p.description
-                        )
-                    );
-                } else {
-                    setSuggestions([]);
+            service.getPlacePredictions(
+                {
+                    input: query,
+                    language: 'fr',
+                },
+                (predictions: any[], status: string) => {
+                    if (status !== google.maps.places.PlacesServiceStatus.OK || !predictions) {
+                        setSuggestions([]);
+                        return;
+                    }
+
+                    setSuggestions(predictions.map((p) => p.description));
                 }
-            } catch (error) {
-                console.error('Erreur de récupération des suggestions Google Places', error);
-                setSuggestions([]);
-            }
+            );
         }, 300); // debounce
 
         return () => clearTimeout(timer);

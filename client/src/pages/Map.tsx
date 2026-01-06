@@ -3,6 +3,8 @@ import { GoogleMap, Marker, InfoWindow, useJsApiLoader } from '@react-google-map
 import Filters from '../components/Filters';
 import { useAnimalFilters } from '../hooks/useAnimalFilters';
 import { geocodeLocation } from '../utils/geocodeLocation';
+import Modal from '../components/Modal';
+import { LostAnimal } from '../types/lostAnimals.ts';
 
 const containerStyle: React.CSSProperties = {
     height: '100%',
@@ -24,6 +26,7 @@ function MapPage() {
 
     const [selectedPosition, setSelectedPosition] = useState<[number, number] | null>(null);
     const [selectedMarkerIndex, setSelectedMarkerIndex] = useState<number | null>(null);
+    const [selectedAnimal, setSelectedAnimal] = useState<LostAnimal | null>(null);
 
     const handleLocationSelect = async (location: string) => {
         try {
@@ -36,6 +39,14 @@ function MapPage() {
         }
     };
 
+    const openModal = (animal: LostAnimal) => {
+        setSelectedAnimal(animal);
+    };
+
+    const closeModal = () => {
+        setSelectedAnimal(null);
+    };
+
     const mapCenter = useMemo(
         () =>
             selectedPosition
@@ -45,8 +56,9 @@ function MapPage() {
     );
 
     const { isLoaded } = useJsApiLoader({
-        id: 'google-map-script-page',
+        id: 'google-map-script',
         googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string,
+        libraries: ['places'],
     });
 
     return (
@@ -61,48 +73,88 @@ function MapPage() {
                 setColorFilter={setColorFilter}
                 setLocationFilter={setLocationFilter}
                 autocompleteLocation
+                enableLocationSuggestions={isLoaded}
                 onLocationSelect={handleLocationSelect}
             />
 
             {!isLoaded ? (
                 <div>Chargement de la carte...</div>
             ) : (
-                <GoogleMap
-                    mapContainerStyle={containerStyle}
-                    center={mapCenter}
-                    zoom={13}
-                >
-                    {filteredAnimals.map((animal, index) => (
-                        <Marker
-                            key={index}
-                            position={{ lat: animal.lat, lng: animal.lng }}
-                            onClick={() => setSelectedMarkerIndex(index)}
-                        >
-                            {selectedMarkerIndex === index && (
-                                <InfoWindow
-                                    position={{ lat: animal.lat, lng: animal.lng }}
-                                    onCloseClick={() => setSelectedMarkerIndex(null)}
-                                >
-                                    <div style={{ textAlign: 'center', maxWidth: '200px' }}>
-                                        <img
-                                            src={animal.imageUrl}
-                                            alt={animal.species}
-                                            width="100"
-                                            height="100"
-                                            style={{ borderRadius: '8px', objectFit: 'cover' }}
-                                        />
-                                        <p><strong>Espèce :</strong> {animal.species}</p>
-                                        <p><strong>Sexe :</strong> {animal.gender}</p>
-                                        <p><strong>Couleur :</strong> {animal.color}</p>
-                                        <p><strong>Marques :</strong> {animal.distinctiveMarkings}</p>
-                                        <p><strong>Lieu :</strong> {animal.location}</p>
-                                        <p><strong>Date :</strong> {animal.date} à {animal.hour}</p>
-                                    </div>
-                                </InfoWindow>
-                            )}
-                        </Marker>
-                    ))}
-                </GoogleMap>
+                <>
+                    <GoogleMap
+                        mapContainerStyle={containerStyle}
+                        center={mapCenter}
+                        zoom={13}
+                    >
+                        {filteredAnimals.map((animal, index) => (
+                            <Marker
+                                key={index}
+                                position={{ lat: animal.lat, lng: animal.lng }}
+                                onClick={() => setSelectedMarkerIndex(index)}
+                            >
+                                {selectedMarkerIndex === index && (
+                                    <InfoWindow
+                                        position={{ lat: animal.lat, lng: animal.lng }}
+                                        onCloseClick={() => setSelectedMarkerIndex(null)}
+                                    >
+                                        <div
+                                            style={{
+                                                textAlign: 'center',
+                                                maxWidth: '220px',
+                                                backgroundColor: '#222',
+                                                color: 'orange',
+                                                padding: '8px 10px',
+                                                borderRadius: '8px',
+                                            }}
+                                        >
+                                            <img
+                                                src={animal.imageUrl}
+                                                alt={animal.species}
+                                                width="100"
+                                                height="100"
+                                                style={{ borderRadius: '8px', objectFit: 'cover', marginBottom: '6px' }}
+                                            />
+                                            <p><strong>Espèce :</strong> {animal.species}</p>
+                                            <p><strong>Sexe :</strong> {animal.gender}</p>
+                                            <p><strong>Couleur :</strong> {animal.color}</p>
+                                            <p><strong>Lieu :</strong> {animal.location}</p>
+                                            <button
+                                                style={{
+                                                    marginTop: '6px',
+                                                    padding: '6px 10px',
+                                                    backgroundColor: '#ff6f00',
+                                                    color: '#fff',
+                                                    border: 'none',
+                                                    borderRadius: '4px',
+                                                    cursor: 'pointer',
+                                                }}
+                                                onClick={() => openModal(animal)}
+                                            >
+                                                Plus d'infos
+                                            </button>
+                                        </div>
+                                    </InfoWindow>
+                                )}
+                            </Marker>
+                        ))}
+                    </GoogleMap>
+
+                    {selectedAnimal && (
+                        <Modal
+                            imageUrl={selectedAnimal.imageUrl}
+                            species={selectedAnimal.species}
+                            location={selectedAnimal.location}
+                            date={selectedAnimal.date}
+                            hour={selectedAnimal.hour}
+                            gender={selectedAnimal.gender}
+                            color={selectedAnimal.color}
+                            distinctiveMarkings={selectedAnimal.distinctiveMarkings}
+                            lat={selectedAnimal.lat}
+                            lng={selectedAnimal.lng}
+                            closeModal={closeModal}
+                        />
+                    )}
+                </>
             )}
         </div>
     );
